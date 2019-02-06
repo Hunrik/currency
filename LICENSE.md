@@ -1,3 +1,4 @@
+Copyright (c) 2019 Henrik Seres
 Copyright (c) 2015-2016 Ignacio Galindo
 
 MIT License
