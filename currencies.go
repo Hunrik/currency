@@ -1,4 +1,4 @@
-package money
+package currency
 
 type currency struct {
 	IsoNumeric         int

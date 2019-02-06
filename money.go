@@ -1,5 +1,5 @@
 /*
-Package money is a library to deal with money and currency representation.
+package currency is a library to deal with money and currency representation.
 
 Usage
 
@@ -12,7 +12,7 @@ Usage
     Format(1000, "USD")                                 // "$1,000.00"
     Format(1000, "USD", WithThousandsSeparator(false)	  // "$1000.00"
 */
-package money
+package currency
 
 import (
 	"fmt"

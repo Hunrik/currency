@@ -1,6 +1,6 @@
-# Money
+# Currency
 
-[![godoc](https://godoc.org/github.com/joiggama/money?status.svg)](https://godoc.org/github.com/Hunrik/currency)
+[![godoc](https://godoc.org/github.com/Hunrik/currency?status.svg)](https://godoc.org/github.com/Hunrik/currency)
 
 A golang library to deal with money and currency representation.
 
