@@ -5,7 +5,7 @@ import (
 )
 
 func TestFormatWithDefaults(t *testing.T) {
-	currency := Format(10)
+	currency := Format(10, "USD")
 	expected := "$10.00"
 
 	if currency != expected {
@@ -14,7 +14,7 @@ func TestFormatWithDefaults(t *testing.T) {
 }
 
 func TestFormatWithCurrency(t *testing.T) {
-	currency := Format(10, Options{"with_currency": true})
+	currency := Format(10, "USD", WithCurrency(true))
 	expected := "$10.00 USD"
 
 	if currency != expected {
@@ -23,7 +23,7 @@ func TestFormatWithCurrency(t *testing.T) {
 }
 
 func TestFormatWithCurrencyWhenCanadian(t *testing.T) {
-	currency := Format(10, Options{"currency": "CAD", "with_currency": true})
+	currency := Format(10, "CAD", WithCurrency(true))
 	expected := "$10.00 CAD"
 
 	if currency != expected {
@@ -32,7 +32,7 @@ func TestFormatWithCurrencyWhenCanadian(t *testing.T) {
 }
 
 func TestFormatWhenJapanese(t *testing.T) {
-	currency := Format(10, Options{"currency": "JPY"})
+	currency := Format(10, "JPY")
 	expected := "¥10"
 
 	if currency != expected {
@@ -41,7 +41,7 @@ func TestFormatWhenJapanese(t *testing.T) {
 }
 
 func TestFormatWhenJapaneseOverThousand(t *testing.T) {
-	currency := Format(1000, Options{"currency": "JPY"})
+	currency := Format(1000, "JPY")
 	expected := "¥1,000"
 
 	if currency != expected {
@@ -50,7 +50,7 @@ func TestFormatWhenJapaneseOverThousand(t *testing.T) {
 }
 
 func TestFormatWhenJapaneseOverTenThousand(t *testing.T) {
-	currency := Format(10000, Options{"currency": "JPY"})
+	currency := Format(10000, "JPY")
 	expected := "¥10,000"
 
 	if currency != expected {
@@ -59,7 +59,7 @@ func TestFormatWhenJapaneseOverTenThousand(t *testing.T) {
 }
 
 func TestFormatWhenJapaneseOverHundredThousand(t *testing.T) {
-	currency := Format(100000, Options{"currency": "JPY"})
+	currency := Format(100000, "JPY")
 	expected := "¥100,000"
 
 	if currency != expected {
@@ -68,7 +68,7 @@ func TestFormatWhenJapaneseOverHundredThousand(t *testing.T) {
 }
 
 func TestFormatWhenJapaneseOverMillion(t *testing.T) {
-	currency := Format(1000000, Options{"currency": "JPY"})
+	currency := Format(1000000, "JPY")
 	expected := "¥1,000,000"
 
 	if currency != expected {
@@ -77,7 +77,7 @@ func TestFormatWhenJapaneseOverMillion(t *testing.T) {
 }
 
 func TestFormatWithoutCents(t *testing.T) {
-	currency := Format(10, Options{"with_cents": false})
+	currency := Format(10, "USD", WithCents(false))
 	expected := "$10"
 
 	if currency != expected {
@@ -88,19 +88,19 @@ func TestFormatWithoutCents(t *testing.T) {
 func TestAddSymbol(t *testing.T) {
 	q := "10.00"
 
-	if afn := addSymbol(q, currencies["AFN"], defaults()); afn != "10.00؋" {
+	if afn := addSymbol(q, currencies["AFN"], defaultOptions()); afn != "10.00؋" {
 		t.Errorf("Expected euro symbol to be placed after quantity, but got %s", afn)
 	}
 
-	if afn := addSymbol(q, currencies["AFN"], Options{"with_symbol_space": true}); afn != "10.00 ؋" {
+	if afn := addSymbol(q, currencies["AFN"], &Options{WithSymbolSpace: true}); afn != "10.00 ؋" {
 		t.Errorf("Expected euro symbol to be placed after quantity and a space, but got %s", afn)
 	}
 
-	if usd := addSymbol(q, currencies["USD"], defaults()); usd != "$10.00" {
+	if usd := addSymbol(q, currencies["USD"], defaultOptions()); usd != "$10.00" {
 		t.Errorf("Expected dollar symbol to be placed before quantity, but got %s", usd)
 	}
 
-	if usd := addSymbol(q, currencies["USD"], Options{"with_symbol_space": true}); usd != "$ 10.00" {
+	if usd := addSymbol(q, currencies["USD"], &Options{WithSymbolSpace: true}); usd != "$ 10.00" {
 		t.Errorf("Expected dollar symbol to be placed before quantity and a space, but got %s", usd)
 	}
 }

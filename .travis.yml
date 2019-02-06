@@ -1,9 +1,0 @@
-language: go
-notifications:
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/ba522271c7ed59024b62
-    on_success: always
-    on_failure: always
-    on_start: false
-

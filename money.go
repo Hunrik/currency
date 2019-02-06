@@ -1,28 +1,16 @@
 /*
 Package money is a library to deal with money and currency representation.
-Inspired by ruby money library http://rubymoney.github.io/money.
-
-Defaults
-
-    Options{
-      "currency":                 "USD",
-      "with_cents":               true,
-      "with_currency":            false,
-      "with_symbol":              true,
-      "with_symbol_space":        false,
-      "with_thousands_separator": true,
-    }
 
 Usage
 
-    Format(10)                                               // "$10.00"
-    Format(10, Options{"currency": "EUR"})                   // "€10.00"
-    Format(10, Options{"with_cents": false})                 // "$10"
-    Format(10, Options{"with_currency:" true })              // "$10.00 USD"
-    Format(10, Options{"with_symbol": false})                // "10.00"
-    Format(10, Options{"with_symbol_space":true})            // "$ 10.00"
-    Format(1000)                                             // "$1,000.00"
-    Format(1000, Options{"with_thousands_separator": false}) // "$1000.00"
+    Format(10, "USD")                                   // "$10.00"
+    Format(10, "EUR")                   								// "€10.00"
+    Format(10, "USD", WithCents(false))                 // "$10"
+    Format(10, "USD", WithCurrency(true))              	// "$10.00 USD"
+    Format(10, "USD", WithSymbol(false)                	// "10.00"
+    Format(10, "USD", WithSymbolSpace(true)            	// "$ 10.00"
+    Format(1000, "USD")                                 // "$1,000.00"
+    Format(1000, "USD", WithThousandsSeparator(false)	  // "$1000.00"
 */
 package money
 
@@ -32,43 +20,113 @@ import (
 	"strings"
 )
 
-// Format returns a formatted price string according to currency rules and options
-func Format(val float64, opts ...Options) (result string) {
-	options := defaults()
+// OptionsFn function parameter
+type OptionsFn func(*Options)
 
-	if len(opts) > 0 {
-		options = override(options, opts[0])
+// WithCents Should display cents or not
+// Default true
+func WithCents(val bool) OptionsFn {
+	return func(opts *Options) {
+		opts.WithCents = val
+	}
+}
+
+// WithCurrency Should add currency text or not
+// Default false
+func WithCurrency(val bool) OptionsFn {
+	return func(opts *Options) {
+		opts.WithCurrency = val
+	}
+}
+
+// WithSymbol Should display symbol or not
+// Default true
+func WithSymbol(val bool) OptionsFn {
+	return func(opts *Options) {
+		opts.WithSymbol = val
+	}
+}
+
+// WithSymbolSpace Should add space between symbol or not
+// Default false
+func WithSymbolSpace(val bool) OptionsFn {
+	return func(opts *Options) {
+		opts.WithSymbolSpace = val
+	}
+}
+
+// WithThousandsSeparator Should use thousand separator or not
+// Default true
+func WithThousandsSeparator(val bool) OptionsFn {
+	return func(opts *Options) {
+		opts.WithCents = val
+	}
+}
+
+// Options {
+// 	WithCents:              true,
+// 	WithCurrency:           false,
+// 	WithSymbol:             true,
+// 	WithSymbolSpace:        false,
+// 	WithThousandsSeparator: true,
+// }
+type Options struct {
+	WithCents              bool
+	WithCurrency           bool
+	WithSymbol             bool
+	WithSymbolSpace        bool
+	WithThousandsSeparator bool
+}
+
+func defaultOptions() *Options {
+	return &Options{
+		WithCents:              true,
+		WithCurrency:           false,
+		WithSymbol:             true,
+		WithSymbolSpace:        false,
+		WithThousandsSeparator: true,
+	}
+}
+
+// Format returns a formatted price string according to currency rules and options
+func Format(amount float64, currency string, opts ...OptionsFn) string {
+	options := defaultOptions()
+
+	for _, opt := range opts {
+		opt(options)
 	}
 
-	c := currencies[options["currency"].(string)]
+	c := currencies[currency]
 
-	integer, fractional := splitValue(val)
+	integer, fractional := splitValue(amount)
 
-	if options["with_thousands_separator"].(bool) {
+	var result string
+
+	if options.WithThousandsSeparator {
 		result = separateThousands(integer, c.ThousandsSeparator)
 	} else {
 		result = integer
 	}
 
-	if options["with_cents"].(bool) && c.SubUnit != "" {
+	if options.WithCents && c.SubUnit != "" {
 		result = fmt.Sprintf("%s%s%s", result, c.DecimalMark, fractional)
 	}
 
-	if options["with_symbol"].(bool) {
+	if options.WithSymbol {
 		result = addSymbol(result, c, options)
 	}
 
-	if options["with_currency"].(bool) {
-		result = fmt.Sprintf("%s %s", result, options["currency"].(string))
+	if options.WithCurrency {
+		result = fmt.Sprintf("%s %s", result, currency)
 	}
 
 	return result
 }
 
-func addSymbol(result string, c currency, options Options) string {
+func addSymbol(result string, c currency, options *Options) string {
 	var space string
 
-	if options["with_symbol_space"].(bool) {
+	if options.WithSymbolSpace {
 		space = " "
 	}
 
