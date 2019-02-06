@@ -17,6 +17,7 @@ package money
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -98,14 +99,12 @@ func Format(amount float64, currency string, opts ...OptionsFn) string {
 
 	c := currencies[currency]
 
-	integer, fractional := splitValue(amount)
+	sign, integer, fractional := splitValue(amount)
 
-	var result string
+	result := strconv.Itoa(integer)
 
 	if options.WithThousandsSeparator {
-		result = separateThousands(integer, c.ThousandsSeparator)
-	} else {
-		result = integer
+		result = separateThousands(result, c.ThousandsSeparator)
 	}
 
 	if options.WithCents && c.SubUnit != "" {
@@ -120,7 +119,7 @@ func Format(amount float64, currency string, opts ...OptionsFn) string {
 		result = fmt.Sprintf("%s %s", result, currency)
 	}
 
-	return result
+	return sign + result
 }
 
 func addSymbol(result string, c currency, options *Options) string {
@@ -166,11 +165,14 @@ func separateThousands(value, separator string) string {
 	return strings.Join(result, separator)
 }
 
-func splitValue(val float64) (integer, fractional string) {
+func splitValue(val float64) (sign string, integer int, fractional string) {
+	if val < 0 {
+		val = math.Abs(val)
+		sign = "-"
+	}
+
 	i, f := math.Modf(val)
-
-	integer = fmt.Sprintf("%.0f", i)
-	fractional = fmt.Sprintf("%.2f", f)[2:]
-
+	integer = int(i)
+	fractional = fmt.Sprintf("%.2F", f)[2:]
 	return
 }

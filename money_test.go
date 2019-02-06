@@ -13,6 +13,15 @@ func TestFormatWithDefaults(t *testing.T) {
 	}
 }
 
+func TestFormatWithNegativeValues(t *testing.T) {
+	currency := Format(-10, "USD")
+	expected := "-$10.00"
+
+	if currency != expected {
+		t.Errorf("Expected %s but got %s", expected, currency)
+	}
+}
+
 func TestFormatWithCurrency(t *testing.T) {
 	currency := Format(10, "USD", WithCurrency(true))
 	expected := "$10.00 USD"
